@@ -30,6 +30,7 @@ jobs:
             ls -lrt
     - name: try to run
       run: |
-           timeout --preserve-status 120 ./weather-linux --apikey $APIKEY
+        echo "$APIKEY"
+        timeout --preserve-status 120 ./weather-linux --apikey $APIKEY
       env:
         APIKEY: ${{ secrets.APIKEY }}
