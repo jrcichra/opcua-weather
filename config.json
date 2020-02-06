@@ -1,0 +1,23 @@
+{
+    "apikey": "1234567890",
+    "coordinates": [
+        {
+            "name": "London",
+            "lat": 51.494707,
+            "lon": -0.126506,
+            "interval": 10
+        },
+        {
+            "name": "Montreal",
+            "lat": 45.501561,
+            "lon": -73.723717,
+            "interval": 5
+        }
+    ],
+    "cities": [
+        {
+            "name": "Pittsburgh",
+            "interval": 2
+        }
+    ]
+}

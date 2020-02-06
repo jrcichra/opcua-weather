@@ -1,23 +1,118 @@
-/*global require,console,setInterval */
 Error.stackTraceLimit = Infinity;
 
-/*global require,setInterval,console */
-const cities = [
-    'London'];
-
-
 const fs = require("fs");
-const key = fs.readFileSync("openweathermap.key");
-
+const args = require("args");
 const unirest = require("unirest");
+const timestamp = require('time-stamp');
+
+args.option('config', "path to config file to load (JSON form) see README.md for example", "config.json")
+    .option('apikey', "API key used for openweathermap calls. Superceeds config file apikey (if specified)")
+    .option('units', " globally set units requested from openweathermap", "imperial")
+    .option('port', " port number to listen on", 4334)
+    .option('debug', "Print debug messages", false)
+const flags = args.parse(process.argv);
+
+let config = flags.config;
+let apikey = flags.apikey;
+let coordinates = [];
+let cities = [];
+let units = flags.units;
+let port = flags.port;
+
+parseConfig(config);
+
+function parseConfig(config) {
+    if (fs.existsSync(config)) {
+        // File exists, check if json
+        try {
+            config = JSON.parse(fs.readFileSync(flags.config));
+        }
+        // Error if there's an issue
+        catch (e) {
+            throw new Error(e);
+        }
+        //Parse out the key (required)
+        try {
+            apikey = config.apikey;
+        } catch (e) {
+            throw new Error(e);
+        }
+        //Parse out the port (optional)
+        if ("port" in config) {
+            port = config.port;
+        }
+        //Parse out coordinates (optional)
+        try {
+            //Make sure all the keys are there
+            for (c of config.coordinates) {
+                if ("name" in c && "lat" in c && "lon" in c && "interval" in c) {
+                    coordinates.push(c);
+                } else {
+                    throw new Error("Missing key in configuration file - expecting name+lat+lon+interval for each coordinate");
+                }
+            }
+            // //Make c an array
+            // coords = coords.split(';');
+            // //loop through each c
+            // for (c of coords) {
+            //     let latlon = c.split(',');
+            //     let lat = latlon[0];
+            //     let lon = latlon[1];
+            //     coordinates.push({ lat: lat, lon: lon });
+            // }
+
+        } catch (e) {
+            //console out something was wrong, but don't error
+            console.log(timestamp('YYYY-MM-DD HH:mm:ss'), e);
+        }
+        //Parse out cities (optional)
+        try {
+            //Make sure all the keys are there
+            for (c of config.cities) {
+                if ("name" in c && "interval" in c) {
+                    cities.push(c);
+                } else {
+                    throw new Error("Missing key in configuration file - expecting name+interval for each city");
+                }
+            }
+        } catch (e) {
+            //console out something was wrong, but don't error
+            console.log(ts(), e);
+        }
+        //Parse out units (optional)
+        if ("units" in config) {
+            units = config.units;
+        }
+
+    }
+}
+
 async function getCityWeather(city) {
 
     const result = await new Promise((resolve) => {
         unirest.get(
-            "http://api.openweathermap.org/data/2.5/weather?units=imperial"
+            `http://api.openweathermap.org/data/2.5/weather?units=${units}`
             + "&mode=json"
             + `&q=${city}`
-            + `&appid=${key}`)
+            + `&appid=${apikey}`)
+            .end(
+                (response) => resolve(response)
+            );
+    });
+    if (result.status !== 200) {
+        throw new Error(`API error ${result.status}`);
+    }
+    return result.body;
+}
+async function getCoordinateWeather(coordinate) {
+
+    const result = await new Promise((resolve) => {
+        unirest.get(
+            `http://api.openweathermap.org/data/2.5/weather?units=${units}`
+            + "&mode=json"
+            + `&lat=${coordinate.lat}`
+            + `&lon=${coordinate.lon}`
+            + `&appid=${apikey}`)
             .end(
                 (response) => resolve(response)
             );
@@ -28,6 +123,9 @@ async function getCityWeather(city) {
     return result.body;
 }
 
+function ts() {
+    return timestamp('YYYY-MM-DD HH:mm:ss:').toString();
+}
 
 function unixEpoqToDate(unixDate) {
     const d = new Date(0);
@@ -47,39 +145,53 @@ function extractUsefulData(data) {
     };
 }
 
-const city_data_map = {};
-
-// a infinite round-robin iterator over the city array
-const next_city = ((arr) => {
-    let counter = arr.length;
-    return function () {
-        counter += 1;
-        if (counter >= arr.length) {
-            counter = 0;
-        }
-        return arr[counter];
-    };
-})(cities);
+const data_map = {};
 
 async function update_city_data(city) {
 
     try {
         const data = await getCityWeather(city);
-        city_data_map[city] = extractUsefulData(data);
+        data_map[city] = extractUsefulData(data);
     }
-    catch (err) {
-        console.log("error city", city, err);
+    catch (e) {
+        console.log(ts(), "error city", city, e);
         return;
     }
 }
 
-// make a API call every 10 seconds
-const interval = 10 * 1000;
-setInterval(async () => {
-    const city = next_city();
-    console.log("updating city =", city);
-    await update_city_data(city);
-}, interval);
+async function update_coordinate_data(coordinate) {
+
+    try {
+        const data = await getCoordinateWeather(coordinate);
+        data_map[coordinate] = extractUsefulData(data);
+    }
+    catch (e) {
+        console.log(ts(), "error coordinate", coordinate, e);
+        return;
+    }
+}
+
+// make a API call for each city on its desired interval
+for (c of cities) {
+    let city = c.name;
+    setInterval(async () => {
+        if (flags.debug) {
+            console.log(ts(), `Updating city: ${city}`);
+        }
+        await update_city_data(city);
+    }, c.interval * 1000);
+}
+
+// make a API call for each coordinate on its desired interval
+for (c of coordinates) {
+    setInterval(async () => {
+        if (flags.debug) {
+            console.log(ts(), `Updating coordinate: ${c.lat},${c.lon}`);
+        }
+        await update_coordinate_data(c);
+    }, c.interval * 1000);
+}
+
 
 const opcua = require("node-opcua");
 
@@ -126,7 +238,7 @@ function construct_my_address_space(server) {
     }
 }
 function extract_value(dataType, city_name, property) {
-    const city = city_data_map[city_name];
+    const city = data_map[city_name];
     if (!city) {
         return opcua.StatusCodes.BadDataUnavailable
     }
@@ -140,11 +252,11 @@ function extract_value(dataType, city_name, property) {
     try {
 
         const server = new opcua.OPCUAServer({
-            port: 4334, // the port of the listening socket of the servery
+            port: port,
             buildInfo: {
-                productName: "WeatherStation",
+                productName: "OpenWeatherStation",
                 buildNumber: "7658",
-                buildDate: new Date(2019, 6, 14),
+                buildDate: new Date(2020, 2, 6),
             }
         });
 
@@ -155,13 +267,12 @@ function extract_value(dataType, city_name, property) {
 
         await server.start();
 
-        console.log("Server is now listening ... ( press CTRL+C to stop)");
-        console.log("port ", server.endpoints[0].port);
+        console.log(ts(), `opcua-weather is listening on port ${server.endpoints[0].port}... (press CTRL+C to stop)`);
         const endpointUrl = server.endpoints[0].endpointDescriptions()[0].endpointUrl;
-        console.log(" the primary server endpoint url is ", endpointUrl);
+        console.log(ts(), `The primary server endpoint url is ${endpointUrl}`);
 
     }
-    catch (err) {
-        console.log("Error = ", err);
+    catch (e) {
+        console.log(ts(), `Error: ${e}`);
     }
 })();
