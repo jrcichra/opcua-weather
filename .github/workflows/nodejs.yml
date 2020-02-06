@@ -46,8 +46,14 @@ jobs:
     - name: try to run on ubuntu
       if: matrix.os == 'ubuntu-latest'
       run: |
-           ./*linux*
+           timeout --preserve-status 120 ./weather-linux --apikey $APIKEY
+      env:
+        APIKEY: ${{ secrets.APIKEY }}
     - name: try to run on windows
       if: matrix.os == 'windows-latest'
       run: |
-           .\*win*
+           start .\weather-win.exe %APIKEY%
+           timeout /t 120
+           taskkill /im weather-win.exe
+      env:
+        APIKEY: ${{ secrets.APIKEY }}
