@@ -16,6 +16,7 @@ jobs:
     - name: Install nexe
       run: |
            sudo npm install -g nexe
+           ls -lrt
     - run: npm install
       env:
         CI: true
