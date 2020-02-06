@@ -16,22 +16,26 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 12
-    - name: Install nexe
-    - if: matrix.os == "ubuntu-latest"
+    - name: Install nexe if ubuntu
+      if: matrix.os == "ubuntu-latest"
       run: |
           sudo npm install -g nexe
-    - if: matrix.os == "windows-latest"
+    - name: Install nexe if windows
+      if: matrix.os == "windows-latest"
       run : |
           npm install -g nexe
-    - run: npm install
+    - name: Run npm install      
+      run: npm install
       env:
         CI: true
     - name: Build weather.js
       run: |
             nexe --build weather.js
-    - if: matrix.os == "ubuntu-latest"
+    - name: ls -lrt if on ubuntu
+      if: matrix.os == "ubuntu-latest"
       run: |
             ls -lrt
-    - if: matrix.os == "windows-latest"
+    - name: dir if on windows
+      if: matrix.os == "windows-latest"
       run: |
             dir
