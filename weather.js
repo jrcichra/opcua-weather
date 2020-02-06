@@ -94,7 +94,7 @@ function parseConfig(config) {
         units = flags.units;
     }
     if (flags.port) {
-        port = flag.port;
+        port = flags.port;
     }
 }
 
