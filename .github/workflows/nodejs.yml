@@ -8,7 +8,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-18.04]
+        os: [windows-latest, ubuntu-latest]
     
     steps:
     - uses: actions/checkout@v2
@@ -17,12 +17,21 @@ jobs:
       with:
         node-version: 12
     - name: Install nexe
+    - if: matrix.os == "ubuntu-latest"
       run: |
-           sudo npm install -g nexe
+          sudo npm install -g nexe
+    - if: matrix.os == "windows-latest"
+      run : |
+          npm install -g nexe
     - run: npm install
       env:
         CI: true
     - name: Build weather.js
       run: |
             nexe --build weather.js
+    - if: matrix.os == "ubuntu-latest"
+      run: |
             ls -lrt
+    - if: matrix.os == "windows-latest"
+      run: |
+            dir
