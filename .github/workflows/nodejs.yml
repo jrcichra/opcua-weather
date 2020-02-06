@@ -33,5 +33,3 @@ jobs:
            timeout --preserve-status 120 ./weather-linux --apikey $APIKEY
       env:
         APIKEY: ${{ secrets.APIKEY }}
-      env:
-        APIKEY: ${{ secrets.APIKEY }}
