@@ -19,4 +19,4 @@ jobs:
     - run: npm install
       env:
         CI: true
-    - run: nexe weather.js
+    - run: nexe --build weather.js
