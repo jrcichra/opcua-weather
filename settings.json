@@ -1,0 +1,15 @@
+{
+    "api": "asdf",
+    "cities": [
+        {
+            "name": "London",
+            "lat": 40,
+            "lon": 80
+        },
+        {
+            "name": "Montreal",
+            "lat": 40,
+            "lon": 80
+        }
+    ]
+}
