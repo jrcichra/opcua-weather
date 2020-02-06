@@ -9,21 +9,20 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest]
-    
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js 10
       uses: actions/setup-node@v1
       with:
         node-version: 10
-    - name: Install nexe if ubuntu
+    - name: Install pkg if ubuntu
       if: matrix.os == 'ubuntu-latest'
       run: |
-          sudo npm install -g nexe
-    - name: Install nexe if windows
+          sudo npm install -g pkg
+    - name: Install pkg if windows
       if: matrix.os == 'windows-latest'
       run : |
-          npm install -g nexe
+          npm install -g pkg
     - name: Run npm install      
       run: npm install
       env:
@@ -31,11 +30,11 @@ jobs:
     - name: Build weather.js on ubuntu
       if: matrix.os == 'ubuntu-latest'
       run: |
-            nexe --build weather.js
+            pkg --build weather.js
     - name: Build weather.js on windows
       if: matrix.os == 'windows-latest'
       run: |
-            nexe --build weather.js
+            pkg --build weather.js
     - name: ls -lrt if on ubuntu
       if: matrix.os == 'ubuntu-latest'
       run: |
@@ -44,3 +43,11 @@ jobs:
       if: matrix.os == 'windows-latest'
       run: |
             dir
+    - name: try to run on ubuntu
+      if: matrix.os = 'ubuntu-latest'
+      run: |
+           ./*linux*
+    - name: try to run on windows
+      if: matrix.os == 'windows-latest'
+      run: |
+           .\*win*
