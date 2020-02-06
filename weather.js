@@ -13,11 +13,11 @@ args.option('config', "path to config file to load (JSON form) see README.md for
 const flags = args.parse(process.argv);
 
 let config = flags.config;
-let apikey = flags.apikey;
+let apikey;
 let coordinates = [];
 let cities = [];
-let units = flags.units;
-let port = flags.port;
+let units;
+let port;
 
 parseConfig(config);
 
@@ -84,6 +84,17 @@ function parseConfig(config) {
             units = config.units;
         }
 
+    }
+
+    //overwrite with command line stuff if it's there
+    if (flags.apikey) {
+        apikey = flags.apikey;
+    }
+    if (flags.units) {
+        units = flags.units;
+    }
+    if (flags.port) {
+        port = flag.port;
     }
 }
 
