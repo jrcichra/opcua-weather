@@ -16,8 +16,10 @@ jobs:
     - name: Install nexe
       run: |
            sudo npm install -g nexe
-           ls -lrt
     - run: npm install
       env:
         CI: true
-    - run: nexe --build weather.js
+    - name: Build weather.js
+      run: |
+            nexe --build weather.js
+            ls -lrt
