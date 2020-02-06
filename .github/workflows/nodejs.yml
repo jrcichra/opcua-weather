@@ -8,7 +8,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest]
+        os: [ubuntu-latest]
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js 10
@@ -16,44 +16,22 @@ jobs:
       with:
         node-version: 10
     - name: Install pkg if ubuntu
-      if: matrix.os == 'ubuntu-latest'
       run: |
           sudo npm install -g pkg
-    - name: Install pkg if windows
-      if: matrix.os == 'windows-latest'
-      run : |
-          npm install -g pkg
     - name: Run npm install      
       run: npm install
       env:
         CI: true
     - name: Build weather.js on ubuntu
-      if: matrix.os == 'ubuntu-latest'
       run: |
             pkg weather.js
-    - name: Build weather.js on windows
-      if: matrix.os == 'windows-latest'
-      run: |
-            pkg weather.js
-    - name: ls -lrt if on ubuntu
-      if: matrix.os == 'ubuntu-latest'
+    - name: ls -lrl
       run: |
             ls -lrt
-    - name: dir if on windows
-      if: matrix.os == 'windows-latest'
-      run: |
-            dir
-    - name: try to run on ubuntu
-      if: matrix.os == 'ubuntu-latest'
+    - name: try to run
       run: |
            timeout --preserve-status 120 ./weather-linux --apikey $APIKEY
       env:
         APIKEY: ${{ secrets.APIKEY }}
-    - name: try to run on windows
-      if: matrix.os == 'windows-latest'
-      run: |
-           start .\weather-win.exe %APIKEY%
-           timeout /t 120
-           taskkill /im weather-win.exe
       env:
         APIKEY: ${{ secrets.APIKEY }}
