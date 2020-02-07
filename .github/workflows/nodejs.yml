@@ -26,7 +26,6 @@ jobs:
     - name: Build weather.js
       run: |
             nexe weather.js
-            nexe weather.js --build -t win
     - name: ls -lrt
       run: |
             ls -lrt
