@@ -27,7 +27,7 @@ jobs:
       run: |
             ls -lrt
     - name: try to run
-      run:  timeout --preserve-status 120 ./weather --apikey ${{ secrets.APIKEY }} --debug
+      run:  timeout  120 ./weather --apikey ${{ secrets.APIKEY }} --debug
     - name: Release
       uses: ncipollo/release-action@v1
       with:
