@@ -115,7 +115,7 @@ async function getCityWeather(city) {
     if (result.status !== 200) {
         throw new Error(`API error ${result.status}`);
     }
-    console.log(`For city:${JSON.stringify(result.body)}`)
+    // console.log(`For city:${JSON.stringify(result.body)}`)
     return result.body;
 }
 async function getCoordinateWeather(coordinate) {
@@ -134,7 +134,7 @@ async function getCoordinateWeather(coordinate) {
     if (result.status !== 200) {
         throw new Error(`API error ${result.status}`);
     }
-    console.log(`For coords:${JSON.stringify(result.body)}`)
+    // console.log(`For coords:${JSON.stringify(result.body)}`)
     return result.body;
 }
 

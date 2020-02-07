@@ -22,9 +22,16 @@ jobs:
           node node_modules/node-opcua-pki/bin/crypto_create_CA.js demo
     - name: Build weather.js
       run: |
-          docker run --rm -v ${PWD}:/mnt node:10 sh -c 'npm install -g nexe && cd /mnt && nexe weather.js'
+          docker run --rm -v ${PWD}:/mnt node:10 sh -c 'npm install -g nexe && cd /mnt && nexe weather.js && nexe weather.js --build -t win'
     - name: ls -lrt
       run: |
             ls -lrt
     - name: try to run
-      run:  timeout --preserve-status 120 ./weather --apikey ${{ secrets.APIKEY }}
+      run:  timeout --preserve-status 120 ./weather --apikey ${{ secrets.APIKEY }} --debug
+    - name: Release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "weather*"
+        draft: "true"
+        tag: "asdf"
+        token: ${{ secrets.GITHUB_TOKEN }}
