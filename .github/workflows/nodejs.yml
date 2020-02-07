@@ -22,7 +22,7 @@ jobs:
       run: npm install
     - name: create CA
       run: |
-          node node_modules/node-opcua/bin/crypto_create_CA.js demo
+          node node_modules/node-opcua-pki/bin/crypto_create_CA.js demo
     - name: Build weather.js
       run: |
             pkg weather.js
