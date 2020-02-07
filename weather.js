@@ -268,7 +268,9 @@ function extract_value(dataType, city_name, property) {
                 productName: "OpenWeatherStation",
                 buildNumber: "7658",
                 buildDate: new Date(2020, 2, 6),
-            }
+            },
+            certificateFile: "./certificates/client_selfsigned_cert_2048.pem",
+            privateKeyFile: "./certificates/client_key_2048.pem"
         });
 
 

@@ -15,14 +15,15 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 10
-    - name: Install pkg if ubuntu
+    - name: Install pkg
       run: |
           sudo npm install -g pkg
     - name: Run npm install      
       run: npm install
-      env:
-        CI: true
-    - name: Build weather.js on ubuntu
+    - name: create CA
+      run: |
+          node node_modules\node-opcua\bin\crypto_create_CA.js demo
+    - name: Build weather.js
       run: |
             pkg weather.js
     - name: ls -lrl
