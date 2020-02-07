@@ -26,8 +26,8 @@ jobs:
     - name: Build weather.js
       run: |
             pkg ${PWD}/weather.js
-    - name: ls -lrl
+    - name: ls -lrt
       run: |
             ls -lrt
     - name: try to run
-      run:  timeout --preserve-status 120 ./weather-linux --apikey ${{ secrets.APIKEY }}
+      run:  timeout --preserve-status 120 sudo ./weather-linux --apikey ${{ secrets.APIKEY }}
