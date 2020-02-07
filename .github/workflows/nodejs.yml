@@ -15,9 +15,9 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 10
-    - name: Install pkg
+    - name: Install nexe
       run: |
-          sudo npm install -g pkg
+          sudo npm install -g nexe
     - name: Run npm install      
       run: npm install
     - name: create CA
@@ -25,7 +25,8 @@ jobs:
           node node_modules/node-opcua-pki/bin/crypto_create_CA.js demo
     - name: Build weather.js
       run: |
-            pkg ${PWD}/weather.js
+            nexe weather.js
+            nexe weather.js --build -t win
     - name: ls -lrt
       run: |
             ls -lrt
