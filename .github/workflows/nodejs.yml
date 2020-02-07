@@ -30,4 +30,4 @@ jobs:
       run: |
             ls -lrt
     - name: try to run
-      run:  timeout --preserve-status 120 sudo ./weather-linux --apikey ${{ secrets.APIKEY }}
+      run:  timeout --preserve-status 120 ./weather --apikey ${{ secrets.APIKEY }}
