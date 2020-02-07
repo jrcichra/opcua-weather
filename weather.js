@@ -4,6 +4,7 @@ const fs = require("fs");
 const args = require("args");
 const unirest = require("unirest");
 const timestamp = require('time-stamp');
+const path = require('path');
 
 args.option('config', "path to config file to load (JSON form) see README.md for example", "config.json")
     .option('apikey', "API key used for openweathermap calls. Superceeds config file apikey (if specified)")
@@ -22,10 +23,11 @@ let port;
 parseConfig(config);
 
 function parseConfig(config) {
+    // let filePath = path.join(path.dirname(process.execPath), config);
     if (fs.existsSync(config)) {
         // File exists, check if json
         try {
-            config = JSON.parse(fs.readFileSync(flags.config));
+            config = JSON.parse(fs.readFileSync(config));
         }
         // Error if there's an issue
         catch (e) {
@@ -113,6 +115,7 @@ async function getCityWeather(city) {
     if (result.status !== 200) {
         throw new Error(`API error ${result.status}`);
     }
+    console.log(`For city:${JSON.stringify(result.body)}`)
     return result.body;
 }
 async function getCoordinateWeather(coordinate) {
@@ -131,6 +134,7 @@ async function getCoordinateWeather(coordinate) {
     if (result.status !== 200) {
         throw new Error(`API error ${result.status}`);
     }
+    console.log(`For coords:${JSON.stringify(result.body)}`)
     return result.body;
 }
 
@@ -156,7 +160,7 @@ function extractUsefulData(data) {
     };
 }
 
-const data_map = {};
+let data_map = {};
 
 async function update_city_data(city) {
 
@@ -174,7 +178,7 @@ async function update_coordinate_data(coordinate) {
 
     try {
         const data = await getCoordinateWeather(coordinate);
-        data_map[coordinate] = extractUsefulData(data);
+        data_map[coordinate.name] = extractUsefulData(data);
     }
     catch (e) {
         console.log(ts(), "error coordinate", coordinate, e);
@@ -197,7 +201,7 @@ for (c of cities) {
 for (c of coordinates) {
     setInterval(async () => {
         if (flags.debug) {
-            console.log(ts(), `Updating coordinate: ${c.lat},${c.lon}`);
+            console.log(ts(), `Updating coordinate: ${c.name},${c.lat},${c.lon}`);
         }
         await update_coordinate_data(c);
     }, c.interval * 1000);
@@ -213,7 +217,7 @@ function construct_my_address_space(server) {
     const namespace = addressSpace.getOwnNamespace();
     const objectsFolder = addressSpace.rootFolder.objects;
 
-    const citiesNode = namespace.addFolder(objectsFolder, { browseName: "Cities" });
+    const citiesNode = namespace.addFolder(objectsFolder, { browseName: "Locations" });
 
     for (let city_name of cities) {
         // declare the city node
@@ -245,6 +249,39 @@ function construct_my_address_space(server) {
             browseName: "Weather",
             dataType: "String",
             value: { get: function () { return extract_value(opcua.DataType.String, city_name, "weather"); } }
+        });
+    }
+
+    for (let coord of coordinates) {
+        // declare the coord node
+        const coordNode = namespace.addFolder(citiesNode, { browseName: coord.name });
+        namespace.addVariable({
+            componentOf: coordNode,
+            browseName: "Temperature",
+            nodeId: `s=${coord.name}-Temperature`,
+            dataType: "Double",
+            value: { get: function () { return extract_value(opcua.DataType.Double, coord.name, "temperature"); } }
+        });
+        namespace.addVariable({
+            componentOf: coordNode,
+            nodeId: `s=${coord.name}-Humidity`,
+            browseName: "Humidity",
+            dataType: "Double",
+            value: { get: function () { return extract_value(opcua.DataType.Double, coord.name, "humidity"); } }
+        });
+        namespace.addVariable({
+            componentOf: coordNode,
+            nodeId: `s=${coord.name}-Pressure`,
+            browseName: "Pressure",
+            dataType: "Double",
+            value: { get: function () { return extract_value(opcua.DataType.Double, coord.name, "pressure"); } }
+        });
+        namespace.addVariable({
+            componentOf: coordNode,
+            nodeId: `s=${coord.name}-Weather`,
+            browseName: "Weather",
+            dataType: "String",
+            value: { get: function () { return extract_value(opcua.DataType.String, coord.name, "weather"); } }
         });
     }
 }
