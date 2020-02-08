@@ -1,23 +1,19 @@
 {
-    "apikey": "1234567890",
+    "apikey": "123456789",
+    "port": 4334,
+    "refreshrate": 15,
+    "units": "imperial",
+    "debug": false,
     "coordinates": [
         {
-            "name": "London",
-            "lat": 51.494707,
-            "lon": -0.126506,
-            "interval": 10
+            "name": "Montreal_Test",
+            "lat": 45.501561,
+            "lon": -73.723717
         },
         {
-            "name": "Montreal",
-            "lat": 45.501561,
-            "lon": -73.723717,
-            "interval": 5
-        }
-    ],
-    "cities": [
-        {
             "name": "Pittsburgh",
-            "interval": 2
+            "lat": 40.441736,
+            "lon": -79.996302
         }
     ]
 }
