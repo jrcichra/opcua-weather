@@ -11,10 +11,10 @@ jobs:
         os: [ubuntu-latest]
     steps:
     - uses: actions/checkout@v2
-    - name: Use Node.js 10
+    - name: Use Node.js 13
       uses: actions/setup-node@v1
       with:
-        node-version: 10
+        node-version: 13
     - name: Run npm install      
       run: npm install
     - name: create CA
@@ -22,7 +22,7 @@ jobs:
           node node_modules/node-opcua-pki/bin/crypto_create_CA.js demo
     - name: Build weather.js
       run: |
-          docker run --rm -v ${PWD}:/mnt node:10 sh -c 'npm install -g nexe && cd /mnt && nexe weather.js'
+          docker run --rm -v ${PWD}:/mnt node:13 sh -c 'npm install -g nexe && cd /mnt && nexe weather.js'
     - name: ls -lrt
       run: |
             ls -lrt
