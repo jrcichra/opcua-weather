@@ -21,7 +21,7 @@ jobs:
           node node_modules/node-opcua-pki/bin/crypto_create_CA.js demo
       - name: Build weather.js
         run: |
-          docker run --rm -v ${PWD}:/mnt node:13 sh -c 'npm install -g nexe && cd /mnt && nexe --build weather.js && nexe --build weather.js -t exe'
+          docker run --rm -v ${PWD}:/mnt node:14 sh -c 'npm install -g nexe && cd /mnt && nexe --build weather.js && nexe --build weather.js -t exe'
       - name: ls -lrt
         run: |
           ls -lrt
