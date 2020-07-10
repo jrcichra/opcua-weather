@@ -10,10 +10,10 @@ jobs:
         os: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js 14
+      - name: Use Node.js 12
         uses: actions/setup-node@v1
         with:
-          node-version: 14
+          node-version: 12
       - name: Run npm install
         run: npm install
       - name: create CA
@@ -24,10 +24,10 @@ jobs:
           npm install -g nexe
       - name: Build weather.js for Linux
         run: |
-          nexe --build weather.js
+          nexe weather.js
       - name: Build weather.js for Windows
         run: |
-          nexe --build weather.js -t exe
+          nexe weather.js -t exe
       - name: ls -lrt
         run: |
           ls -lrt
