@@ -4,34 +4,33 @@ on: [push]
 
 jobs:
   build:
-
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest]
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js 13
-      uses: actions/setup-node@v1
-      with:
-        node-version: 13
-    - name: Run npm install      
-      run: npm install
-    - name: create CA
-      run: |
+      - uses: actions/checkout@v2
+      - name: Use Node.js 14
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Run npm install
+        run: npm install
+      - name: create CA
+        run: |
           node node_modules/node-opcua-pki/bin/crypto_create_CA.js demo
-    - name: Build weather.js
-      run: |
+      - name: Build weather.js
+        run: |
           docker run --rm -v ${PWD}:/mnt node:13 sh -c 'npm install -g nexe && cd /mnt && nexe --build weather.js && nexe --build weather.js -t exe'
-    - name: ls -lrt
-      run: |
-            ls -lrt
-    - name: try to run
-      run:  timeout  120 ./weather --apikey ${{ secrets.APIKEY }} --debug | /bin/true
-    - name: Release
-      uses: ncipollo/release-action@v1
-      with:
-        artifacts: "weather*"
-        draft: "true"
-        tag: "asdf"
-        token: ${{ secrets.GITHUB_TOKEN }}
+      - name: ls -lrt
+        run: |
+          ls -lrt
+      - name: try to run
+        run: timeout  120 ./weather --apikey ${{ secrets.APIKEY }} --debug | /bin/true
+      - name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "weather*"
+          draft: "true"
+          tag: "asdf"
+          token: ${{ secrets.GITHUB_TOKEN }}
