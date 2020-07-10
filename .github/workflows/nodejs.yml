@@ -19,14 +19,18 @@ jobs:
       - name: create CA
         run: |
           node node_modules/node-opcua-pki/bin/crypto_create_CA.js demo
-      - name: Build weather.js
+      - name: Install nexe
         run: |
-          docker run --rm -v ${PWD}:/mnt node:14 sh -c 'npm install -g nexe && cd /mnt && nexe --build weather.js && nexe --build weather.js -t exe'
+          npm install -g nexe
+      - name: Build weather.js for Linux
+        run: |
+          nexe --build weather.js
+      - name: Build weather.js for Windows
+        run: |
+          nexe --build weather.js -t exe
       - name: ls -lrt
         run: |
           ls -lrt
-      - name: try to run
-        run: timeout  120 ./weather --apikey ${{ secrets.APIKEY }} --debug | /bin/true
       - name: Release
         uses: ncipollo/release-action@v1
         with:
