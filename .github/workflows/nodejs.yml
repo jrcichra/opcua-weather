@@ -24,10 +24,10 @@ jobs:
           npm install -g nexe
       - name: Build weather.js for Linux
         run: |
-          nexe weather.js
+          nexe weather.js -o weather
       - name: Build weather.js for Windows
         run: |
-          nexe weather.js -t exe
+          nexe weather.js -t exe -o weather.exe
       - name: ls -lrt
         run: |
           ls -lrt
