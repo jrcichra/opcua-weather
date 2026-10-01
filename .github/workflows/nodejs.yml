@@ -10,31 +10,21 @@ jobs:
         os: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v5
-      - name: Use Node.js 12
-        uses: actions/setup-node@v1
+      # node-opcua >= 2.184 requires Node >= 22.13
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
         with:
-          node-version: 12.22.12
-      - name: Run npm install
-        run: npm install
-      - name: create CA
+          node-version: 22.x
+      - name: Run npm ci
+        run: npm ci
+      # node-opcua-pki 6.x moved the create-CA script; "pki demo" is the
+      # replacement for the old crypto_create_CA.js demo
+      - name: create demo CA
+        run: node node_modules/node-opcua-pki/dist/bin/pki.mjs demo
+      - name: Smoke check
         run: |
-          node node_modules/node-opcua-pki/bin/crypto_create_CA.js demo
-      - name: Install nexe
-        run: |
-          npm install -g nexe
-      - name: Build weather.js for Linux
-        run: |
-          nexe weather.js -o weather
-      - name: Build weather.js for Windows
-        run: |
-          nexe weather.js -t exe -o weather.exe
-      - name: ls -lrt
-        run: |
-          ls -lrt
-      - name: Release
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: "weather*"
-          draft: "true"
-          tag: "asdf"
-          token: ${{ secrets.GITHUB_TOKEN }}
+          node weather.js --version
+          node -e "require('node-opcua')"
+      # NOTE: the old nexe executable-build + draft-release steps were removed:
+      # nexe is unmaintained and cannot bundle Node >= 22 (its prebuilt
+      # binaries stop at Node 14). Run the app with `node weather.js` instead.
